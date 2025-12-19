@@ -1,0 +1,17 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.out
+test_runner
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

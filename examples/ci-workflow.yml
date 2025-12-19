@@ -1,0 +1,61 @@
+name: Run Criterion Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Criterion tests
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            ghcr.io/vantavoids/critervoid:main \
+            run-tests
+
+      - name: Run tests with verbose output
+        if: failure()
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -e VERBOSE=1 \
+            ghcr.io/vantavoids/critervoid:main \
+            run-tests
+
+  test-with-flags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests with strict compiler flags
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -e EXTRA_FLAGS="-Wall -Wextra -Werror -std=c11" \
+            ghcr.io/vantavoids/critervoid:main \
+            run-tests
+
+  test-with-clang:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests with Clang
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -e COMPILER=clang \
+            ghcr.io/vantavoids/critervoid:main \
+            run-tests
