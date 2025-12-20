@@ -24,6 +24,27 @@ Then simply use:
 critervoid
 ```
 
+### File Permissions
+
+The container runs as a non-root user (UID 1000, GID 1000) by default to avoid permission issues with mounted volumes. Files created inside the container will be owned by this user.
+
+If your host user has a different UID/GID, you can:
+
+**Option 1: Run with your host user ID** (recommended for ad-hoc usage)
+```bash
+docker run -it --user $(id -u):$(id -g) -v $(pwd):/workspace ghcr.io/vantavoids/critervoid:main
+```
+
+**Option 2: Build with your user ID** (recommended if building locally)
+```bash
+docker build --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -t critervoid .
+```
+
+**Option 3: Run as root** (not recommended, but sometimes necessary)
+```bash
+docker run -it --user root -v $(pwd):/workspace ghcr.io/vantavoids/critervoid:main
+```
+
 ## What's Included
 
 - **Criterion v2.4.2** - Unit testing framework

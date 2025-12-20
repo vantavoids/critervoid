@@ -30,7 +30,8 @@ RUN apk add --no-cache \
     make \
     pkgconf \
     libffi \
-    bash
+    bash \
+    ncurses
 
 COPY --from=criterion-builder /usr/local/lib/libcriterion* /usr/local/lib/
 COPY --from=criterion-builder /usr/local/include/criterion /usr/local/include/criterion
@@ -39,11 +40,21 @@ COPY --from=criterion-builder /usr/local/lib/pkgconfig/criterion.pc /usr/local/l
 RUN ln -sf /usr/bin/clang /usr/bin/cc && \
     ln -sf /usr/bin/clang++ /usr/bin/c++
 
-WORKDIR /workspace
-
 COPY run-tests.sh /usr/local/bin/run-tests
 RUN chmod +x /usr/local/bin/run-tests
 
-RUN echo 'export PS1="[critervoid] \u@\h:\w\$ "' >> /root/.bashrc
+# Create a non-root user to avoid permission issues with mounted volumes
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN addgroup -g ${GROUP_ID} builder && \
+    adduser -D -u ${USER_ID} -G builder builder && \
+    mkdir -p /workspace && \
+    chown -R builder:builder /workspace
+
+# Setup shell for non-root user
+RUN echo 'export PS1="[critervoid] \u@\h:\w\$ "' >> /home/builder/.bashrc
+
+WORKDIR /workspace
+USER builder
 
 CMD ["/bin/bash"]
